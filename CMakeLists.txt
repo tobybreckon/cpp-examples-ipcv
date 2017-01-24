@@ -58,10 +58,6 @@ project(butterworth_lowpass)
 add_executable(butterworth_lowpass butterworth_lowpass.cpp)
 target_link_libraries( butterworth_lowpass ${OpenCV_LIBS} )
 
-project(deblur_wiener)
-add_executable(deblur_wiener deblur_wiener.cpp)
-target_link_libraries( deblur_wiener ${OpenCV_LIBS} )
-
 project(fourier)
 add_executable(fourier fourier.cpp)
 target_link_libraries( fourier ${OpenCV_LIBS} )
@@ -102,14 +98,6 @@ target_link_libraries( opencv_c_from_cpp ${OpenCV_LIBS} )
 project(polygons)
 add_executable(polygons polygons.cpp)
 target_link_libraries( polygons ${OpenCV_LIBS} )
-
-project(surf_feature_matching)
-add_executable(surf_feature_matching surf_feature_matching.cpp)
-target_link_libraries( surf_feature_matching ${OpenCV_LIBS} )
-
-project(two_cameras)
-add_executable(two_cameras two_cameras.cpp)
-target_link_libraries( two_cameras ${OpenCV_LIBS} )
 
 project(nlm)
 add_executable(nlm nlm.cpp)
