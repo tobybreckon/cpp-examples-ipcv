@@ -1,5 +1,4 @@
-# cpp-examples-ipcv
-C++ Image Processing and Computer Vision OpenCV Examples used for Teaching
+# C++ Image Processing and Computer Vision OpenCV Teaching Examples
 
 OpenCV C++ Image Processing and Computer Vision examples used for teaching over the years.
 
