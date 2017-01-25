@@ -41,7 +41,7 @@ int main( int argc, char** argv )
   const string windowName2 = "Mean Filtered Output"; // window name
 
   bool keepProcessing = true;	// loop control flag
-  int  key;						// user input
+  unsigned char key;						// user input
   int  EVENT_LOOP_DELAY = 40;	// delay for GUI window
                                 // 40 ms equates to 1000ms/25fps = 40ms per frame
 

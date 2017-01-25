@@ -75,7 +75,7 @@ int main( int argc, char** argv )
 {
 
   Mat img;  // image object
-  int  key;
+  unsigned char key;
   bool keepProcessing = true;
 
   const string windowName = "OPENCV: colour query"; // window name
