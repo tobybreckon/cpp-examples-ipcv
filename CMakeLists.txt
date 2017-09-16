@@ -1,9 +1,9 @@
 cmake_minimum_required (VERSION 2.6)
-set( CMAKE_CXX_FLAGS "-O3 -Wall -march=native ${CMAKE_CXX_FLAGS}" )
 
 # linux specific stuff
 
 IF ( UNIX )
+   set( CMAKE_CXX_FLAGS "-O3 -Wall -march=native ${CMAKE_CXX_FLAGS}" )
    set( CMAKE_PREFIX_PATH "/opt/opencv" )
    set_property(GLOBAL PROPERTY TARGET_SUPPORTS_SHARED_LIBS TRUE)
    MESSAGE( "LINUX CONFIG" )
