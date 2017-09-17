@@ -45,6 +45,7 @@ ISBN: 0470844736, DOI:10.1002/9780470689776, http://www.fundipbook.com
 
 ```
 bibtex:
+
 @Book{solomonbreckon10fundamentals,
   author 	= 	 {Solomon, C.J. and Breckon, T.P.},
   title 	= 	 {Fundamentals of Digital Image Processing:
