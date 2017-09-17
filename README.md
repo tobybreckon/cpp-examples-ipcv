@@ -37,7 +37,7 @@ N.B. you may need to change the line near the top that specifies the camera devi
 
 ### Reference:
 
-All techniques are fully explained in corresponding section of:
+Many of these techniques are fully explained in corresponding section of:
 
 _Fundamentals of Digital Image Processing: A Practical Approach with Examples in Matlab_,
 Chris J. Solomon and Toby P. Breckon, Wiley-Blackwell, 2010
