@@ -152,7 +152,7 @@ void nonlocalMeansFilter(Mat& src, Mat& dest, int templeteWindowSize, int search
     const int bb = sr+tr;
     const int D = searchWindowSize*searchWindowSize;
     const int H=D/2+1;
-    const double div = 1.0/(double)D;//search area div
+    //const double div = 1.0/(double)D;//search area div
     const int tD = templeteWindowSize*templeteWindowSize;
     const double tdiv = 1.0/(double)(tD);//templete square div
 
@@ -165,7 +165,7 @@ void nonlocalMeansFilter(Mat& src, Mat& dest, int templeteWindowSize, int search
     double* w = &weight[0];
     const double gauss_sd = (sigma == 0.0) ? h :sigma;
     double gauss_color_coeff = -(1.0/(double)(src.channels()))*(1.0/(h*h));
-    int emax;
+    int emax = HUGE;
     for(int i = 0; i < 256*256*src.channels(); i++ )
     {
         double v = std::exp( max(i-2.0*gauss_sd*gauss_sd,0.0)*gauss_color_coeff);
