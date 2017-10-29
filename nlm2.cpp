@@ -56,7 +56,7 @@ static void nonlocalMeansFilter(Mat& src, Mat& dest, int templeteWindowSize,
     const int bb = sr+tr;
     const int D = searchWindowSize*searchWindowSize;
     const int H=D/2+1;
-    const double div = 1.0/(double)D;//search area div
+    // const double div = 1.0/(double)D;//search area div
     const int tD = templeteWindowSize*templeteWindowSize;
     const double tdiv = 1.0/(double)(tD);//templete square div
 
