@@ -117,3 +117,7 @@ target_link_libraries( bilateral_filter ${OpenCV_LIBS} )
 project(optical_flow_fback)
 add_executable(optical_flow_fback optical_flow_fback.cpp)
 target_link_libraries( optical_flow_fback ${OpenCV_LIBS} )
+
+project(feature_point_matching)
+add_executable(feature_point_matching feature_point_matching.cpp)
+target_link_libraries( feature_point_matching ${OpenCV_LIBS} )
