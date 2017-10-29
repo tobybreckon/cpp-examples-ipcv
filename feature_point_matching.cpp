@@ -17,8 +17,8 @@
 #include <opencv2/features2d.hpp>
 #include <opencv2/xfeatures2d.hpp>
 
-#include <iostream>		// standard C++ I/O
-#include <string>		// standard C++ I/O
+#include <iostream>     // standard C++ I/O
+#include <string>       // standard C++ I/O
 #include <algorithm>    // includes max()
 
 using namespace cv; // OpenCV API is in the C++ "cv" namespace
@@ -32,9 +32,9 @@ using namespace std;
 //-1 in windows gives first device or user dialog selection
 
 #ifdef linux
-	#define CAMERA_INDEX  0
+    #define CAMERA_INDEX  0
 #else
-	#define CAMERA_INDEX -1
+    #define CAMERA_INDEX -1
 #endif
 
 /******************************************************************************/
@@ -78,21 +78,21 @@ void onMouseSelect( int event, int x, int y, int, void* image)
 
 //Copy (x,y) location of descriptor matches found from KeyPoint data structures into Point2f vectors
 void matches2points(const vector<vector<DMatch> >& matches, const vector<KeyPoint>& kpts_train,
-                    const vector<KeyPoint>& kpts_query, vector<Point2f>& pts_train,
-                    vector<Point2f>& pts_query)
+  const vector<KeyPoint>& kpts_query, vector<Point2f>& pts_train,
+  vector<Point2f>& pts_query)
 {
-  pts_train.clear();
-  pts_query.clear();
+    pts_train.clear();
+    pts_query.clear();
 
-  for (size_t k = 0; k < matches.size(); k++)
-  {
-    for (size_t i = 0; i < matches[k].size(); i++)
+    for (size_t k = 0; k < matches.size(); k++)
     {
-        const DMatch& match = matches[k][i];
-        pts_query.push_back(kpts_query[match.queryIdx].pt);
-        pts_train.push_back(kpts_train[match.trainIdx].pt);
+        for (size_t i = 0; i < matches[k].size(); i++)
+        {
+            const DMatch& match = matches[k][i];
+            pts_query.push_back(kpts_query[match.queryIdx].pt);
+            pts_train.push_back(kpts_train[match.trainIdx].pt);
+        }
     }
-  }
 
 }
 
@@ -102,318 +102,318 @@ void matches2points(const vector<vector<DMatch> >& matches, const vector<KeyPoin
 int main( int argc, char** argv )
 {
 
-  Mat img, roi, selected, gray, graySelected, output, selectedCopy, transformOverlay; // image objects
-  VideoCapture cap; // capture object
+    Mat img, roi, selected, gray, graySelected, output, selectedCopy, transformOverlay; // image objects
+    VideoCapture cap; // capture object
 
-  const string windowName = "Live Video Input"; // window name
-  const string windowName2 = "Selected Region / Object"; // window name
-  const string windowName3 = "Matches"; // window name
+    const string windowName = "Live Video Input"; // window name
+    const string windowName2 = "Selected Region / Object"; // window name
+    const string windowName3 = "Matches"; // window name
 
 
-  vector<KeyPoint> keypointsVideo;          // keypoints and descriptors
-  vector<KeyPoint> keypointsSelection;
-  Mat descSelection, descVideo;
-  // vector<DMatch> matches_internal;
-  vector<vector<DMatch> > matches;
-  vector<Mat> training;
-  vector<Point2f> detectedPointsVideo;
-  vector<Point2f> detectedPointsSelection;
+    vector<KeyPoint> keypointsVideo;        // keypoints and descriptors
+    vector<KeyPoint> keypointsSelection;
+    Mat descSelection, descVideo;
+    // vector<DMatch> matches_internal;
+    vector<vector<DMatch> > matches;
+    vector<Mat> training;
+    vector<Point2f> detectedPointsVideo;
+    vector<Point2f> detectedPointsSelection;
 
-  bool keepProcessing = true;	// loop control flag
-  int  key;						// user input
-  int  EVENT_LOOP_DELAY = 40;	// delay for GUI window
+    bool keepProcessing = true; // loop control flag
+    int key;                    // user input
+    int EVENT_LOOP_DELAY = 40;  // delay for GUI window
                                 // 40 ms equates to 1000ms/25fps = 40ms per frame
 
-  // SURF feature detector with Hessian threshold: 400 using 4 octaves over 3 layers
-  // (the default parameters - see manual for details)
+    // SURF feature detector with Hessian threshold: 400 using 4 octaves over 3 layers
+    // (the default parameters - see manual for details)
 
-	Ptr<Feature2D> detector = SURF::create();
+    Ptr<Feature2D> detector = SURF::create();
 
-	// DescriptorExtractor *extractor = new SurfDescriptorExtractor(); // extracts descriptors of
-                                            // the detected points
-  FlannBasedMatcher matcher;                // descriptor matcher (k-NN based)
+    // DescriptorExtractor *extractor = new SurfDescriptorExtractor(); // extracts descriptors of
+    // the detected points
+    FlannBasedMatcher matcher;              // descriptor matcher (k-NN based)
                                             // (FLANN = Fast Library for Approximate Nearest Neighbors)
 
-  int threshold = 10;                       // matching threshold
+    int threshold = 10;                     // matching threshold
 
-  Mat H, H_prev;                             // image to image homography (transformation)
+    Mat H, H_prev;                           // image to image homography (transformation)
 
-  bool showEllipse = false;                 // stuff for drawing the ellipse
-  RotatedRect ellipseFit;
-  bool drawLivePoints = false;
-  bool newFeatureType = false;
-  bool computeHomography = false;
+    bool showEllipse = false;               // stuff for drawing the ellipse
+    RotatedRect ellipseFit;
+    bool drawLivePoints = false;
+    bool newFeatureType = false;
+    bool computeHomography = false;
 
-  // set up the features - here using only SURF, SIFT and KAZE that use floating
-	// point descriptors by default as the others - ORB, BRISK, FREAK, AKAZE all
-	// require more messing arounf with a type conversion of the binary descriptors
-	// to floating point for use of FLANN matching and/or matching in L1 space
-  //
-	// Although this is fully possible within OpenCV, for example see:
-	// On using Feature Descriptors as Visual Words for Object Detection within
-	// X-ray Baggage Security Screening (M.E. Kundegorski, S. Akcay, M. Devereux,
-	// A. Mouton, T.P. Breckon), In Proc. International Conference on Imaging for
-	// Crime Detection and Prevention, IET, pp. 12 (6 .)-12 (6 .)(1), 2016.
+    // set up the features - here using only SURF, SIFT and KAZE that use floating
+    // point descriptors by default as the others - ORB, BRISK, FREAK, AKAZE all
+    // require more messing arounf with a type conversion of the binary descriptors
+    // to floating point for use of FLANN matching and/or matching in L1 space
+    //
+    // Although this is fully possible within OpenCV, for example see:
+    // On using Feature Descriptors as Visual Words for Object Detection within
+    // X-ray Baggage Security Screening (M.E. Kundegorski, S. Akcay, M. Devereux,
+    // A. Mouton, T.P. Breckon), In Proc. International Conference on Imaging for
+    // Crime Detection and Prevention, IET, pp. 12 (6 .)-12 (6 .)(1), 2016.
 
-  enum feature_types { SURF, SIFT, KAZE };
-	int feature_types_max = 3;
-	float match_threshold_multipliers[] = {0.01, 10, 0.01};
-	int currentFeatureType = SURF;
-	float threshold_multiplier = match_threshold_multipliers[currentFeatureType];
+    enum feature_types { SURF, SIFT, KAZE };
+    int feature_types_max = 3;
+    float match_threshold_multipliers[] = {0.01, 10, 0.01};
+    int currentFeatureType = SURF;
+    float threshold_multiplier = match_threshold_multipliers[currentFeatureType];
 
-  // matches.push_back(matches_internal);
+    // matches.push_back(matches_internal);
 
-  // if command line arguments are provided try to read image/video_name
-  // otherwise default to capture from attached H/W camera
+    // if command line arguments are provided try to read image/video_name
+    // otherwise default to capture from attached H/W camera
 
     if(
-	  		( argc == 2 && (cap.open(argv[1]) == true )) ||
-	  		( argc != 2 && (cap.open(CAMERA_INDEX) == true))
-	  	)
+        ( argc == 2 && (cap.open(argv[1]) == true )) ||
+        ( argc != 2 && (cap.open(CAMERA_INDEX) == true))
+        )
     {
-      // create window object (use flag=0 to allow resize, 1 to auto fix size)
+        // create window object (use flag=0 to allow resize, 1 to auto fix size)
 
-      namedWindow(windowName, 0);
-      namedWindow(windowName2, 0);
-      namedWindow(windowName3, 0);
-      setMouseCallback( windowName, onMouseSelect, &img);
-      createTrackbar("threshold (* 0.01)", windowName3, &threshold, 200, 0);
+        namedWindow(windowName, 0);
+        namedWindow(windowName2, 0);
+        namedWindow(windowName3, 0);
+        setMouseCallback( windowName, onMouseSelect, &img);
+        createTrackbar("threshold (* 0.01)", windowName3, &threshold, 200, 0);
 
-      std::cout << "'e' - toggle ellipse fit for detected points (default: off)" << std::endl;
-      std::cout << "'p' - toggle drawing for live feature points (default: off)" << std::endl;
-      std::cout << "'t' - toggle use of varying points & descriptors (default: SURF)" << std::endl;
-      std::cout << "'h' - compute image to image homography (default: off)" << std::endl;
+        std::cout << "'e' - toggle ellipse fit for detected points (default: off)" << std::endl;
+        std::cout << "'p' - toggle drawing for live feature points (default: off)" << std::endl;
+        std::cout << "'t' - toggle use of varying points & descriptors (default: SURF)" << std::endl;
+        std::cout << "'h' - compute image to image homography (default: off)" << std::endl;
 
-	  	// start main loop
+        // start main loop
 
-	  	while (keepProcessing) {
+        while (keepProcessing) {
 
-      	int64 timeStart = getTickCount(); // get time at start of loop
+            int64 timeStart = getTickCount(); // get time at start of loop
 
-		  	// if capture object in use (i.e. video/camera)
-		  	// get image from capture object
+            // if capture object in use (i.e. video/camera)
+            // get image from capture object
 
-		  	if (cap.isOpened()) {
+            if (cap.isOpened()) {
 
-			  	cap >> img;
-			  	if(img.empty()){
-						if (argc == 2){
-							std::cerr << "End of video file reached" << std::endl;
-						} else {
-							std::cerr << "ERROR: cannot get next frame from camera"
-						      << std::endl;
-						}
-						exit(0);
-			  	}
-		  	}
+                cap >> img;
+                if(img.empty()) {
+                    if (argc == 2) {
+                        std::cerr << "End of video file reached" << std::endl;
+                    } else {
+                        std::cerr << "ERROR: cannot get next frame from camera"
+                                  << std::endl;
+                    }
+                    exit(0);
+                }
+            }
 
-        // convert incoming image to grayscale
+            // convert incoming image to grayscale
 
-        cvtColor(img, gray, CV_BGR2GRAY);
+            cvtColor(img, gray, CV_BGR2GRAY);
 
-        // detect the feature points from the current incoming frame and extract
-        // corresponding descriptors
+            // detect the feature points from the current incoming frame and extract
+            // corresponding descriptors
 
-        keypointsVideo.clear();
-        detector->detect(gray, keypointsVideo);
-        detector->compute(gray, keypointsVideo, descVideo);
+            keypointsVideo.clear();
+            detector->detect(gray, keypointsVideo);
+            detector->compute(gray, keypointsVideo, descVideo);
 
-        // match descriptors to selection (if we have a selected object)
+            // match descriptors to selection (if we have a selected object)
 
-        if (!(descSelection.empty()))
-        {
-          if (threshold == 0) {threshold = 1;}
-          matches.clear();
-          matcher.radiusMatch(descVideo, matches, (float) (threshold) * threshold_multiplier);
+            if (!(descSelection.empty()))
+            {
+                if (threshold == 0) {threshold = 1; }
+                matches.clear();
+                matcher.radiusMatch(descVideo, matches, (float) (threshold) * threshold_multiplier);
 
-          // draw results on image
+                // draw results on image
 
-          output = Mat::zeros(img.rows, img.cols + selected.cols, img.type());
-          drawMatches(gray, keypointsVideo, graySelected, keypointsSelection, matches, output,
-                      Scalar(0,255,0), Scalar(-1,-1,-1), vector<vector<char> >(),
-                      DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
+                output = Mat::zeros(img.rows, img.cols + selected.cols, img.type());
+                drawMatches(gray, keypointsVideo, graySelected, keypointsSelection, matches, output,
+                  Scalar(0,255,0), Scalar(-1,-1,-1), vector<vector<char> >(),
+                  DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
 
-          // get the matches as points in both images
+                // get the matches as points in both images
 
-          matches2points(matches, keypointsSelection, keypointsVideo, detectedPointsSelection, detectedPointsVideo);
+                matches2points(matches, keypointsSelection, keypointsVideo, detectedPointsSelection, detectedPointsVideo);
 
-          // fit ellipse to object location
+                // fit ellipse to object location
 
-          if (showEllipse)
-          {
-              if (detectedPointsSelection.size() > 6)
-              {
-                  ellipseFit = fitEllipse(Mat(detectedPointsVideo));
-                  ellipse(output, ellipseFit, Scalar(0, 0, 255), 2, 8);
-              }
-          }
+                if (showEllipse)
+                {
+                    if (detectedPointsSelection.size() > 6)
+                    {
+                        ellipseFit = fitEllipse(Mat(detectedPointsVideo));
+                        ellipse(output, ellipseFit, Scalar(0, 0, 255), 2, 8);
+                    }
+                }
 
-					// compute and display homography (mapping on image to another) if selected
+                // compute and display homography (mapping on image to another) if selected
 
-          if (computeHomography && (detectedPointsSelection.size() > 5))
-          {
-              // need at least 5 matched pairs of points (more are better)
+                if (computeHomography && (detectedPointsSelection.size() > 5))
+                {
+                    // need at least 5 matched pairs of points (more are better)
 
-              Mat H = findHomography(Mat(detectedPointsSelection), Mat(detectedPointsVideo), RANSAC, 2);
-              transformOverlay = Mat::zeros(output.rows, output.cols, output.type());
-              warpPerspective(selectedCopy, transformOverlay, H, transformOverlay.size(), INTER_LINEAR, BORDER_CONSTANT, 0);
-              addWeighted(output, 0.5, transformOverlay, 0.5, 0, output);
-          }
+                    Mat H = findHomography(Mat(detectedPointsSelection), Mat(detectedPointsVideo), RANSAC, 2);
+                    transformOverlay = Mat::zeros(output.rows, output.cols, output.type());
+                    warpPerspective(selectedCopy, transformOverlay, H, transformOverlay.size(), INTER_LINEAR, BORDER_CONSTANT, 0);
+                    addWeighted(output, 0.5, transformOverlay, 0.5, 0, output);
+                }
 
-          // display result
+                // display result
 
-          imshow(windowName3, output);
+                imshow(windowName3, output);
 
-        }
+            }
 
-        // whist we are selecting or have selected an object
+            // whist we are selecting or have selected an object
 
-        if( selectObject && selection.width > 0 && selection.height > 0 )
-        {
+            if( selectObject && selection.width > 0 && selection.height > 0 )
+            {
 
-          // invert selection in image whilst selection is taking place
+                // invert selection in image whilst selection is taking place
 
-          roi = img(selection);
-          bitwise_not(roi, roi);
+                roi = img(selection);
+                bitwise_not(roi, roi);
 
-        } else if ((selectionComplete || newFeatureType) && selection.width > 0 && selection.height > 0 ){
+            } else if ((selectionComplete || newFeatureType) && selection.width > 0 && selection.height > 0 ) {
 
-          // once it is complete then make a copy of the selection and extract descriptors
-          // from detected points
+                // once it is complete then make a copy of the selection and extract descriptors
+                // from detected points
 
-          if (!newFeatureType) {
-              selected = roi.clone();
-              selectedCopy  = roi.clone();
-              cvtColor(selected, graySelected, CV_BGR2GRAY);
-          } else {
-							selected = selectedCopy.clone();
-          }
+                if (!newFeatureType) {
+                    selected = roi.clone();
+                    selectedCopy  = roi.clone();
+                    cvtColor(selected, graySelected, CV_BGR2GRAY);
+                } else {
+                    selected = selectedCopy.clone();
+                }
 
-          newFeatureType = false;
-          selectionComplete = false;
+                newFeatureType = false;
+                selectionComplete = false;
 
-          keypointsSelection.clear();
-          detector->detect(graySelected, keypointsSelection);
-          detector->compute(graySelected, keypointsSelection, descSelection);
+                keypointsSelection.clear();
+                detector->detect(graySelected, keypointsSelection);
+                detector->compute(graySelected, keypointsSelection, descSelection);
 
-            // draw the features
+                // draw the features
 
-            drawKeypoints(graySelected, keypointsSelection, selected,
-                          Scalar(255, 0, 0), DrawMatchesFlags::DRAW_OVER_OUTIMG | DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+                drawKeypoints(graySelected, keypointsSelection, selected,
+                  Scalar(255, 0, 0), DrawMatchesFlags::DRAW_OVER_OUTIMG | DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
 
-            // train the matcher on this example
+                // train the matcher on this example
 
-            training.clear();
-            training.push_back(descSelection);
-            matcher.clear();
-            matcher.add(training);
-            matcher.train();
+                training.clear();
+                training.push_back(descSelection);
+                matcher.clear();
+                matcher.add(training);
+                matcher.train();
 
-      	}
+            }
 
-		  	// display image in window (with keypoints if activated)
+            // display image in window (with keypoints if activated)
 
-        if (drawLivePoints)
-        {
-            drawKeypoints(gray, keypointsVideo, img,
-          	Scalar(255, 0, 0), DrawMatchesFlags::DRAW_OVER_OUTIMG | DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
-        }
+            if (drawLivePoints)
+            {
+                drawKeypoints(gray, keypointsVideo, img,
+                  Scalar(255, 0, 0), DrawMatchesFlags::DRAW_OVER_OUTIMG | DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+            }
 
-		  	imshow(windowName, img);
-		  	if (!(selected.empty()))
-		  	{
-          imshow(windowName2, selected);
-		  	}
+            imshow(windowName, img);
+            if (!(selected.empty()))
+            {
+                imshow(windowName2, selected);
+            }
 
-		  	// start event processing loop (very important,in fact essential for GUI)
-	      // 40 ms roughly equates to 1000ms/25fps = 4ms per frame
+            // start event processing loop (very important,in fact essential for GUI)
+            // 40 ms roughly equates to 1000ms/25fps = 4ms per frame
 
-        // here we take account of processing time for the loop by subtracting the time
-        // taken in ms. from this (1000ms/25fps = 40ms per frame) value whilst ensuring
-        // we get a +ve wait time
+            // here we take account of processing time for the loop by subtracting the time
+            // taken in ms. from this (1000ms/25fps = 40ms per frame) value whilst ensuring
+            // we get a +ve wait time
 
-		  	key = waitKey((int) std::max(2.0, EVENT_LOOP_DELAY -
-                			(((getTickCount() - timeStart) / getTickFrequency()) * 1000)));
+            key = waitKey((int) std::max(2.0, EVENT_LOOP_DELAY -
+                (((getTickCount() - timeStart) / getTickFrequency()) * 1000)));
 
-        switch (key)
-        {
-          case 'x':
-        			// if user presses "x" then exit
+            switch (key)
+            {
+            case 'x':
+                // if user presses "x" then exit
 
-          	std::cout << "Keyboard exit requested : exiting now - bye!" << std::endl;
-	   				keepProcessing = false;
-          break;
-          case 'p':
-          		// if user presses "p" live feature point drawing
+                std::cout << "Keyboard exit requested : exiting now - bye!" << std::endl;
+                keepProcessing = false;
+                break;
+            case 'p':
+                // if user presses "p" live feature point drawing
 
-          	drawLivePoints = (!drawLivePoints);
-			  		std::cout << "feature point drawing (live) = " << drawLivePoints << std::endl;
-        	break;
-          case 'e':
-            	// if user presses "e" toggle ellipse drawing
+                drawLivePoints = (!drawLivePoints);
+                std::cout << "feature point drawing (live) = " << drawLivePoints << std::endl;
+                break;
+            case 'e':
+                // if user presses "e" toggle ellipse drawing
 
                 showEllipse = (!showEllipse);
-			  				std::cout << "Ellipse drawing = " << showEllipse << std::endl;
-          break;
-          case 't':
-							// toggle feature point type
+                std::cout << "Ellipse drawing = " << showEllipse << std::endl;
+                break;
+            case 't':
+                // toggle feature point type
 
-							currentFeatureType++;
-							currentFeatureType = currentFeatureType % feature_types_max;
+                currentFeatureType++;
+                currentFeatureType = currentFeatureType % feature_types_max;
 
-							switch (currentFeatureType)
-			        {
-								case SURF:
-										detector = SURF::create();
-										std::cout << "now using SURF" << std::endl;
-								break;
-								case SIFT:
-										detector = SIFT::create();
-										std::cout << "now using SIFT" << std::endl;
-								break;
-								case KAZE:
-										detector = KAZE::create();
-										std::cout << "now using KAZE" << std::endl;
-								break;
+                switch (currentFeatureType)
+                {
+                case SURF:
+                    detector = SURF::create();
+                    std::cout << "now using SURF" << std::endl;
+                    break;
+                case SIFT:
+                    detector = SIFT::create();
+                    std::cout << "now using SIFT" << std::endl;
+                    break;
+                case KAZE:
+                    detector = KAZE::create();
+                    std::cout << "now using KAZE" << std::endl;
+                    break;
 
-							}
+                }
 
-							// reset selection and set a new type flag
+                // reset selection and set a new type flag
 
-							newFeatureType = true;
-							descSelection = Mat();
+                newFeatureType = true;
+                descSelection = Mat();
 
-							// get suitable matching threshold multiplier for slider
+                // get suitable matching threshold multiplier for slider
 
-							threshold_multiplier = match_threshold_multipliers[currentFeatureType];
+                threshold_multiplier = match_threshold_multipliers[currentFeatureType];
 
-          	break;
+                break;
             case 'h':
 
-            	// compute and display homography transformation from one image to the other
+                // compute and display homography transformation from one image to the other
 
-              computeHomography = (!computeHomography);
-              std::cout << "Compute homography = " << computeHomography << std::endl;
+                computeHomography = (!computeHomography);
+                std::cout << "Compute homography = " << computeHomography << std::endl;
 
-          	break;
-          	default:
-          	break;
+                break;
+            default:
+                break;
+            }
+
         }
 
-	}
+        // pointer objects auto deleted as smart pointers Ptr<>
 
-  // pointer objects auto deleted as smart pointers Ptr<>
+        // the camera will be deinitialized automatically in VideoCapture destructor
 
-	// the camera will be deinitialized automatically in VideoCapture destructor
+        // all OK : main returns 0
 
-	// all OK : main returns 0
+        return 0;
+    }
 
-  return 0;
-  }
+    // not OK : main returns -1
 
-  // not OK : main returns -1
-
-  return -1;
+    return -1;
 }
 
 /******************************************************************************/
