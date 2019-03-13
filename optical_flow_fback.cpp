@@ -64,7 +64,7 @@ int main( int argc, char** argv )
   // otherwise default to capture from attached H/W camera
 
     if(
-	  ( argc == 2 && (!(img = imread( argv[1], CV_LOAD_IMAGE_COLOR)).empty()))||
+	  ( argc == 2 && (!(img = imread( argv[1], IMREAD_COLOR)).empty()))||
 	  ( argc == 2 && (cap.open(argv[1]) == true )) ||
 	  ( argc != 2 && (cap.open(CAMERA_INDEX) == true))
 	  )
@@ -105,14 +105,14 @@ int main( int argc, char** argv )
 
 		  // convert to grayscale
 
-		  cvtColor(img, gray, CV_BGR2GRAY);
+		  cvtColor(img, gray, COLOR_BGR2GRAY);
 
 		  // if we have a previous image
 
 		  if(!prevgray.empty())
 		  {
 		    calcOpticalFlowFarneback(prevgray, gray, flow, 0.5, 3, 15, 3, 5, 1.2, 0);
-		    cvtColor(prevgray, cflow, CV_GRAY2BGR);
+		    cvtColor(prevgray, cflow, COLOR_GRAY2BGR);
 		    drawOptFlowMap(flow, cflow, 16, 1.5, CV_RGB(0, 255, 0));
 
 		    // display image in window

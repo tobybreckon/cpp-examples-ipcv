@@ -27,7 +27,7 @@ int main( int argc, char** argv )
 
   // check that command line arguments are provided and image reads in OK
 
-    if ((argc == 3) && !(inputImg = imread( argv[1], CV_LOAD_IMAGE_COLOR)).empty())
+    if ((argc == 3) && !(inputImg = imread( argv[1], IMREAD_COLOR)).empty())
     {
 
       // invert image_name
@@ -36,7 +36,7 @@ int main( int argc, char** argv )
 
 	  // write out image to file
 
-	  params.push_back(CV_IMWRITE_JPEG_QUALITY);
+	  params.push_back(IMWRITE_JPEG_QUALITY);
  	  params.push_back(95);
 
 	  imwrite(argv[2], outputImg, params);

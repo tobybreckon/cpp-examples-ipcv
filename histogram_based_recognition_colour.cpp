@@ -215,13 +215,13 @@ int main( int argc, char** argv )
 					// do histogram comparision here
 
 					double correlation = compareHist(currentHistogram,
-												histogram[i],CV_COMP_CORREL);
+												histogram[i],HISTCMP_CORREL);
 					double chisquared = compareHist(currentHistogram,
-												histogram[i],CV_COMP_CHISQR);
+												histogram[i],HISTCMP_CHISQR);
 					double intersect = compareHist(currentHistogram,
-												histogram[i],CV_COMP_INTERSECT);
+												histogram[i],HISTCMP_INTERSECT);
 					double bhattacharyya = compareHist(currentHistogram,
-												histogram[i],CV_COMP_BHATTACHARYYA);
+												histogram[i],HISTCMP_BHATTACHARYYA);
 
 					// here we just sum the differences of the measures
 					// (which as the histograms are all normalised are all
@@ -261,7 +261,7 @@ int main( int argc, char** argv )
 				namedWindow("Recognition Result", 1 );
                 imshow("Recognition Result", input[closestImage]);
 				waitKey(0);
-				cvDestroyWindow("Recognition Result"); // close window
+				destroyWindow("Recognition Result"); // close window
 
 			} else {
 				std::cout << "ERROR - need to enter recognition stage first."

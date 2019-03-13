@@ -61,12 +61,12 @@ void onMouseSelect( int event, int x, int y, int, void* image)
 
     switch( event )
     {
-    case CV_EVENT_LBUTTONDOWN:
+    case EVENT_LBUTTONDOWN:
         origin = Point(x,y);
         selection = Rect(x,y,0,0);
         selectObject = true;
         break;
-    case CV_EVENT_LBUTTONUP:
+    case EVENT_LBUTTONUP:
         selectObject = false;
         if( selection.width > 0 && selection.height > 0 )
             selectionComplete = true;
@@ -76,26 +76,24 @@ void onMouseSelect( int event, int x, int y, int, void* image)
 
 /******************************************************************************/
 
-//Copy (x,y) location of descriptor matches found from KeyPoint data structures into Point2f vectors
-void matches2points(const vector<vector<DMatch> >& matches, const vector<KeyPoint>& kpts_train,
-  const vector<KeyPoint>& kpts_query, vector<Point2f>& pts_train,
-  vector<Point2f>& pts_query)
+// Copy (x,y) location of descriptor matches found from KeyPoint data structures into Point2f vectors
+
+// source: https://github.com/kipr/opencv/blob/master/samples/cpp/brief_match_test.cpp
+
+static void matches2points(const vector<DMatch>& matches, const vector<KeyPoint>& kpts_train,
+                    const vector<KeyPoint>& kpts_query, vector<Point2f>& pts_train, vector<Point2f>& pts_query)
 {
-    pts_train.clear();
-    pts_query.clear();
-
-    for (size_t k = 0; k < matches.size(); k++)
-    {
-        for (size_t i = 0; i < matches[k].size(); i++)
-        {
-            const DMatch& match = matches[k][i];
-            pts_query.push_back(kpts_query[match.queryIdx].pt);
-            pts_train.push_back(kpts_train[match.trainIdx].pt);
-        }
-    }
-
+  pts_train.clear();
+  pts_query.clear();
+  pts_train.reserve(matches.size());
+  pts_query.reserve(matches.size());
+  for (size_t i = 0; i < matches.size(); i++)
+  {
+    const DMatch& match = matches[i];
+    pts_query.push_back(kpts_query[match.queryIdx].pt);
+    pts_train.push_back(kpts_train[match.trainIdx].pt);
+  }
 }
-
 
 /******************************************************************************/
 
@@ -129,10 +127,10 @@ int main( int argc, char** argv )
 
     Ptr<Feature2D> detector = SURF::create();
 
-    // DescriptorExtractor *extractor = new SurfDescriptorExtractor(); // extracts descriptors of
-    // the detected points
-    FlannBasedMatcher matcher;              // descriptor matcher (k-NN based)
-                                            // (FLANN = Fast Library for Approximate Nearest Neighbors)
+    // descriptor matcher (k-NN based) - (FLANN = Fast Library for Approximate Nearest Neighbors)
+
+    Ptr<FlannBasedMatcher> matcher = new FlannBasedMatcher();
+
 
     int threshold = 10;                     // matching threshold
 
@@ -144,22 +142,14 @@ int main( int argc, char** argv )
     bool newFeatureType = false;
     bool computeHomography = false;
 
-    // set up the features - here using only SURF, SIFT and KAZE that use floating
-    // point descriptors by default as the others - ORB, BRISK, FREAK, AKAZE all
-    // require more messing arounf with a type conversion of the binary descriptors
-    // to floating point for use of FLANN matching and/or matching in L1 space
-    //
-    // Although this is fully possible within OpenCV, for example see:
-    // On using Feature Descriptors as Visual Words for Object Detection within
-    // X-ray Baggage Security Screening (M.E. Kundegorski, S. Akcay, M. Devereux,
-    // A. Mouton, T.P. Breckon), In Proc. International Conference on Imaging for
-    // Crime Detection and Prevention, IET, pp. 12 (6 .)-12 (6 .)(1), 2016.
+    // set up the features - here using only SURF, SIFT and KAZE and ORB for now
 
-    enum feature_types { SURF, SIFT, KAZE };
-    int feature_types_max = 3;
-    float match_threshold_multipliers[] = {0.01, 10, 0.01};
+    // TODO - add FREAK, BRISK, ... AKAZE ... etc.
+
+    enum feature_types { SURF, SIFT, KAZE, ORB };
+    int feature_types_max = 4;
     int currentFeatureType = SURF;
-    float threshold_multiplier = match_threshold_multipliers[currentFeatureType];
+    int match_ratio = 7;
 
     // matches.push_back(matches_internal);
 
@@ -177,7 +167,7 @@ int main( int argc, char** argv )
         namedWindow(windowName2, 0);
         namedWindow(windowName3, 0);
         setMouseCallback( windowName, onMouseSelect, &img);
-        createTrackbar("threshold (* 0.01)", windowName3, &threshold, 200, 0);
+        createTrackbar("ratio (* 0.1)", windowName3, &match_ratio, 10, NULL);
 
         std::cout << "'e' - toggle ellipse fit for detected points (default: off)" << std::endl;
         std::cout << "'p' - toggle drawing for live feature points (default: off)" << std::endl;
@@ -209,7 +199,7 @@ int main( int argc, char** argv )
 
             // convert incoming image to grayscale
 
-            cvtColor(img, gray, CV_BGR2GRAY);
+            cvtColor(img, gray, COLOR_BGR2GRAY);
 
             // detect the feature points from the current incoming frame and extract
             // corresponding descriptors
@@ -224,18 +214,32 @@ int main( int argc, char** argv )
             {
                 if (threshold == 0) {threshold = 1; }
                 matches.clear();
-                matcher.radiusMatch(descVideo, matches, (float) (threshold) * threshold_multiplier);
+
+                // get first and second nearest matches
+
+                matcher->knnMatch(descVideo, matches, 2);
+
+                // filter matches based on match ratio quality
+
+                vector<cv::DMatch> good_matches;
+                for (unsigned int i = 0; i < matches.size(); ++i)
+                {
+                  // match ratio of 1st to 2nd best match
+                  if (matches[i][0].distance < (match_ratio * 0.1) * matches[i][1].distance)
+                  {
+                    good_matches.push_back(matches[i][0]);
+                  }
+                }
 
                 // draw results on image
 
                 output = Mat::zeros(img.rows, img.cols + selected.cols, img.type());
-                drawMatches(gray, keypointsVideo, graySelected, keypointsSelection, matches, output,
-                  Scalar(0,255,0), Scalar(-1,-1,-1), vector<vector<char> >(),
-                  DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
+                drawMatches(gray, keypointsVideo, graySelected, keypointsSelection, good_matches, output,
+                 Scalar(0,255,0), Scalar(-1,-1,-1));
 
                 // get the matches as points in both images
 
-                matches2points(matches, keypointsSelection, keypointsVideo, detectedPointsSelection, detectedPointsVideo);
+                matches2points(good_matches, keypointsSelection, keypointsVideo, detectedPointsSelection, detectedPointsVideo);
 
                 // fit ellipse to object location
 
@@ -284,7 +288,7 @@ int main( int argc, char** argv )
                 if (!newFeatureType) {
                     selected = roi.clone();
                     selectedCopy  = roi.clone();
-                    cvtColor(selected, graySelected, CV_BGR2GRAY);
+                    cvtColor(selected, graySelected, COLOR_BGR2GRAY);
                 } else {
                     selected = selectedCopy.clone();
                 }
@@ -305,9 +309,9 @@ int main( int argc, char** argv )
 
                 training.clear();
                 training.push_back(descSelection);
-                matcher.clear();
-                matcher.add(training);
-                matcher.train();
+                matcher->clear();
+                matcher->add(training);
+                matcher->train();
 
             }
 
@@ -366,6 +370,7 @@ int main( int argc, char** argv )
                 case SURF:
                     detector = SURF::create();
                     std::cout << "now using SURF" << std::endl;
+                    matcher =  new FlannBasedMatcher(); // reset to Euclid. Kd-tree
                     break;
                 case SIFT:
                     detector = SIFT::create();
@@ -375,6 +380,14 @@ int main( int argc, char** argv )
                     detector = KAZE::create();
                     std::cout << "now using KAZE" << std::endl;
                     break;
+                case ORB:
+                    detector = ORB::create();
+                    std::cout << "now using ORB" << std::endl;
+
+                    // set matcher to non Euclid. hashing approach
+
+                    matcher =  new FlannBasedMatcher(new flann::LshIndexParams(20, 10, 2));
+                    break;
 
                 }
 
@@ -382,10 +395,6 @@ int main( int argc, char** argv )
 
                 newFeatureType = true;
                 descSelection = Mat();
-
-                // get suitable matching threshold multiplier for slider
-
-                threshold_multiplier = match_threshold_multipliers[currentFeatureType];
 
                 break;
             case 'h':

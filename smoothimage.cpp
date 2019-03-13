@@ -29,7 +29,7 @@ int main( int argc, char** argv )
 
   // check that command line arguments are provided and image reads in OK
 
-    if ((argc == 2) && !(inputImg = imread( argv[1], CV_LOAD_IMAGE_COLOR)).empty())
+    if ((argc == 2) && !(inputImg = imread( argv[1], IMREAD_COLOR)).empty())
     {
 
       // blur the input image using a 5 x 5 mask and store in output image

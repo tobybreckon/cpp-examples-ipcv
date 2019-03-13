@@ -126,8 +126,8 @@ double calcPSNR(Mat& src, Mat& dest)
     }
     else
     {
-        cvtColor(src,ssrc,CV_BGR2YUV);
-        cvtColor(dest,ddest,CV_BGR2YUV);
+        cvtColor(src,ssrc,COLOR_BGR2YUV);
+        cvtColor(dest,ddest,COLOR_BGR2YUV);
     }
     double sn   = getPSNR(ssrc,ddest);
     return sn;
@@ -165,7 +165,7 @@ void nonlocalMeansFilter(Mat& src, Mat& dest, int templeteWindowSize, int search
     double* w = &weight[0];
     const double gauss_sd = (sigma == 0.0) ? h :sigma;
     double gauss_color_coeff = -(1.0/(double)(src.channels()))*(1.0/(h*h));
-    int emax = HUGE;
+    int emax = INT_MAX;
     for(int i = 0; i < 256*256*src.channels(); i++ )
     {
         double v = std::exp( max(i-2.0*gauss_sd*gauss_sd,0.0)*gauss_color_coeff);

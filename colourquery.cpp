@@ -28,7 +28,7 @@ void colourQueryMouseCallBack(int event, int x, int y, int flags, void* img)
 
 	switch (event)
 	{
-	case CV_EVENT_LBUTTONDOWN :
+	case EVENT_LBUTTONDOWN :
 
 		// left button prints colour information at click location to stdout
 
@@ -52,7 +52,7 @@ void colourQueryMouseCallBack(int event, int x, int y, int flags, void* img)
 
 		;
 		break;
-	case CV_EVENT_RBUTTONDOWN :
+	case EVENT_RBUTTONDOWN:
 
 		// right button sets colour information at click location to white
 
@@ -82,7 +82,7 @@ int main( int argc, char** argv )
 
   // check that command line arguments are provided and image reads in OK
 
-  if ((argc == 2) && !(img = imread( argv[1], CV_LOAD_IMAGE_COLOR)).empty())
+  if ((argc == 2) && !(img = imread( argv[1], IMREAD_COLOR)).empty())
   {
 	// create window object
 
@@ -92,8 +92,7 @@ int main( int argc, char** argv )
 	// (note: this uses the older cvXXX function naming style from the
 	// OpenCV C interface)
 
-	cvSetMouseCallback("OPENCV: colour query",
-			(CvMouseCallback) colourQueryMouseCallBack, &img);
+	setMouseCallback("OPENCV: colour query", colourQueryMouseCallBack, &img);
 
 
 	// print out some helpful information about the image

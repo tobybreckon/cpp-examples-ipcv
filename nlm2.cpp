@@ -40,7 +40,7 @@ using namespace std;
 // Reference:
 // A. Buades, B. Coll, J.M. Morel “A non local algorithm for image denoising”
 // IEEE Computer Vision and Pattern Recognition 2005, Vol 2, pp: 60-65, 2005.
-
+/*
 static void nonlocalMeansFilter(Mat& src, Mat& dest, int templeteWindowSize,
                                 int searchWindowSize, double h, double sigma=0.0)
 {
@@ -229,7 +229,7 @@ static void nonlocalMeansFilter(Mat& src, Mat& dest, int templeteWindowSize,
         }//j
     }
 }
-
+*/
 /******************************************************************************/
 
 int main( int argc, char** argv )
@@ -265,7 +265,7 @@ int main( int argc, char** argv )
   // otherwise default to capture from attached H/W camera
 
     if(
-	  ( argc == 2 && (!(img = imread( argv[1], CV_LOAD_IMAGE_COLOR)).empty()))||
+	  ( argc == 2 && (!(img = imread( argv[1], IMREAD_COLOR)).empty()))||
 	  ( argc == 2 && (cap.open(argv[1]) == true )) ||
 	  ( argc != 2 && (cap.open(CAMERA_INDEX) == true))
 	  )

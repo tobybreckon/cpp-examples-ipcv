@@ -90,7 +90,7 @@ Mat create_spectrum_magnitude_display(Mat& complexImg, bool rearrange)
         shiftDFT(mag);
     }
 
-    normalize(mag, mag, 0, 1, CV_MINMAX);
+    normalize(mag, mag, 0, 1, NORM_MINMAX);
 
     return mag;
 
@@ -189,7 +189,7 @@ int main( int argc, char** argv )
   // otherwise default to capture from attached H/W camera
 
     if(
-	  ( argc == 2 && (!(img = imread( argv[1], CV_LOAD_IMAGE_COLOR)).empty()))||
+	  ( argc == 2 && (!(img = imread( argv[1], IMREAD_COLOR)).empty()))||
 	  ( argc == 2 && (cap.open(argv[1]) == true )) ||
 	  ( argc != 2 && (cap.open(CAMERA_INDEX) == true))
 	  )
@@ -257,7 +257,7 @@ int main( int argc, char** argv )
 
 		    // convert input to grayscale
 
-		  	cvtColor(img, imgGray, CV_BGR2GRAY);
+		  	cvtColor(img, imgGray, COLOR_BGR2GRAY);
 
 			// setup the DFT images
 
@@ -293,12 +293,12 @@ int main( int argc, char** argv )
             // split into planes and extract plane 0 as output image
 
             split(complexImg, planes);
-            normalize(planes[0], imgOutput, 0, 1, CV_MINMAX);
+            normalize(planes[0], imgOutput, 0, 1, NORM_MINMAX);
 
             // do the same with the filter image
 
             split(filter, planes);
-            normalize(planes[0], filterOutput, 0, 1, CV_MINMAX);
+            normalize(planes[0], filterOutput, 0, 1, NORM_MINMAX);
 
 		  // ***
 

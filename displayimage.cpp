@@ -27,7 +27,7 @@ int main( int argc, char** argv )
 
   // check that command line arguments are provided and image reads in OK
 
-  if((argc == 2) && !(img = imread( argv[1], CV_LOAD_IMAGE_COLOR)).empty())
+  if((argc == 2) && !(img = imread( argv[1], IMREAD_COLOR)).empty())
     {
       // create window object
 
