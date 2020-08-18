@@ -40,7 +40,7 @@ using namespace std;
 // Reference:
 // A. Buades, B. Coll, J.M. Morel “A non local algorithm for image denoising”
 // IEEE Computer Vision and Pattern Recognition 2005, Vol 2, pp: 60-65, 2005.
-/*
+
 static void nonlocalMeansFilter(Mat& src, Mat& dest, int templeteWindowSize,
                                 int searchWindowSize, double h, double sigma=0.0)
 {
@@ -69,7 +69,7 @@ static void nonlocalMeansFilter(Mat& src, Mat& dest, int templeteWindowSize,
     double* w = &weight[0];
     const double gauss_sd = (sigma == 0.0) ? h :sigma;
     double gauss_color_coeff = -(1.0/(double)(src.channels()))*(1.0/(h*h));
-    int emax;
+    int emax = INT_MAX;
     for(int i = 0; i < 256*256*src.channels(); i++ )
     {
         double v = std::exp( max(i-2.0*gauss_sd*gauss_sd,0.0)*gauss_color_coeff);
@@ -229,7 +229,7 @@ static void nonlocalMeansFilter(Mat& src, Mat& dest, int templeteWindowSize,
         }//j
     }
 }
-*/
+
 /******************************************************************************/
 
 int main( int argc, char** argv )
