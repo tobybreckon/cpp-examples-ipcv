@@ -154,7 +154,12 @@ void create_butterworth_lowpass_filter(Mat& dftFilter, int radius, int order)
     flip(q3, q2, 1);
     flip(q3, q0, -1);
 
-    Mat toMerge[] = { tmp, tmp };
+	// to multiply a DFT image by a filter, this filter 
+	// should be real only, otherwise the multiplication 
+	// changes the phase along with the magnitude of each 
+	// pixel in the DFT - bug fix, 01/2023 - https://github.com/epitalon
+
+ 	Mat toMerge[] = { tmp, Mat::ones(tmp.size(), CV_32F) };
     merge(toMerge, 2, dftFilter);
 }
 
