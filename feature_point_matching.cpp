@@ -222,6 +222,7 @@ int main( int argc, char** argv )
                 // filter matches based on match ratio quality
 
                 vector<cv::DMatch> good_matches;
+                
                 for (unsigned int i = 0; i < matches.size(); ++i)
                 {
                   // match ratio of 1st to 2nd best match
