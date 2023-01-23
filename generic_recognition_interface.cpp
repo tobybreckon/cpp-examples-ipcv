@@ -210,7 +210,7 @@ int main( int argc, char** argv )
                     namedWindow("Recognition Result", 1 );
                     imshow("Recognition Result", input[closestImage]);
                     waitKey(0);
-                    cvDestroyWindow("Recognition Result"); // close window
+                    destroyWindow("Recognition Result"); // close window
 
                 }
                 else

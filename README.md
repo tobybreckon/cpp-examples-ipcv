@@ -2,7 +2,7 @@
 
 OpenCV C++ Image Processing and Computer Vision examples used for teaching over the years (2010-2013+).
 
-All tested with [OpenCV](http://www.opencv.org) 3.1 (see also [4.0 branch](https://github.com/tobybreckon/cpp-examples-ipcv/tree/opencv4)) and GCC (Linux).
+All tested with [OpenCV](http://www.opencv.org) 4.0 (this branch) and GCC (Linux).
 
 ---
 

@@ -69,7 +69,7 @@ static void nonlocalMeansFilter(Mat& src, Mat& dest, int templeteWindowSize,
     double* w = &weight[0];
     const double gauss_sd = (sigma == 0.0) ? h :sigma;
     double gauss_color_coeff = -(1.0/(double)(src.channels()))*(1.0/(h*h));
-    int emax;
+    int emax = INT_MAX;
     for(int i = 0; i < 256*256*src.channels(); i++ )
     {
         double v = std::exp( max(i-2.0*gauss_sd*gauss_sd,0.0)*gauss_color_coeff);
@@ -265,7 +265,7 @@ int main( int argc, char** argv )
   // otherwise default to capture from attached H/W camera
 
     if(
-	  ( argc == 2 && (!(img = imread( argv[1], CV_LOAD_IMAGE_COLOR)).empty()))||
+	  ( argc == 2 && (!(img = imread( argv[1], IMREAD_COLOR)).empty()))||
 	  ( argc == 2 && (cap.open(argv[1]) == true )) ||
 	  ( argc != 2 && (cap.open(CAMERA_INDEX) == true))
 	  )

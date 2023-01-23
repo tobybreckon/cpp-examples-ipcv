@@ -61,12 +61,12 @@ void onMouseSelect( int event, int x, int y, int, void* image)
 
     switch( event )
     {
-    case CV_EVENT_LBUTTONDOWN:
+    case EVENT_LBUTTONDOWN:
         origin = Point(x,y);
         selection = Rect(x,y,0,0);
         selectObject = true;
         break;
-    case CV_EVENT_LBUTTONUP:
+    case EVENT_LBUTTONUP:
         selectObject = false;
         if( selection.width > 0 && selection.height > 0 )
             selectionComplete = true;
@@ -199,7 +199,7 @@ int main( int argc, char** argv )
 
             // convert incoming image to grayscale
 
-            cvtColor(img, gray, CV_BGR2GRAY);
+            cvtColor(img, gray, COLOR_BGR2GRAY);
 
             // detect the feature points from the current incoming frame and extract
             // corresponding descriptors
@@ -222,7 +222,8 @@ int main( int argc, char** argv )
                 // filter matches based on match ratio quality
 
                 vector<cv::DMatch> good_matches;
-                for (int i = 0; i < matches.size(); ++i)
+                
+                for (unsigned int i = 0; i < matches.size(); ++i)
                 {
                   // match ratio of 1st to 2nd best match
                   if (matches[i][0].distance < (match_ratio * 0.1) * matches[i][1].distance)
@@ -288,7 +289,7 @@ int main( int argc, char** argv )
                 if (!newFeatureType) {
                     selected = roi.clone();
                     selectedCopy  = roi.clone();
-                    cvtColor(selected, graySelected, CV_BGR2GRAY);
+                    cvtColor(selected, graySelected, COLOR_BGR2GRAY);
                 } else {
                     selected = selectedCopy.clone();
                 }

@@ -49,7 +49,7 @@ int main( int argc, char** argv )
 	    		true, 			// draw closed contour (i.e. joint end to start)
 	            Scalar(0,255,0),// colour RGB ordering (here = green)
 	    		3, 		        // line thickness
-			    CV_AA, 0);
+			    LINE_AA, 0);
 
 
 	// do point in polygon test (by conversion/cast to a Mat() object)

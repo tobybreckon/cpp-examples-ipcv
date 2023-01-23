@@ -49,7 +49,7 @@ int main( int argc, char** argv )
   // otherwise default to capture from attached H/W camera
 
     if(
-	  ( argc == 2 && (!(img = imread( argv[1], CV_LOAD_IMAGE_COLOR)).empty()))||
+	  ( argc == 2 && (!(img = imread( argv[1], IMREAD_COLOR)).empty()))||
 	  ( argc == 2 && (cap.open(argv[1]) == true )) ||
 	  ( argc != 2 && (cap.open(CAMERA_INDEX) == true))
 	  )

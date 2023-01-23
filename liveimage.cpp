@@ -46,7 +46,7 @@ int main( int argc, char** argv )
 
   // start event processing loop (very important,in fact essential for GUI)
 
-  cvWaitKey(0);
+  waitKey(0);
 
   // the camera will be deinitialized automatically in VideoCapture destructor
 
