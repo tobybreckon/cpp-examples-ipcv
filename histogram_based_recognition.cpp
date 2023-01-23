@@ -211,7 +211,7 @@ int main( int argc, char** argv )
 
 				// for each histogram (do comparison)
 
-				double closestDistance = HUGE;
+				double closestDistance = __DBL_MAX__;
 				int closestImage = 0;
 
 				for (int i = 0; i < imagesCollected; i++)
