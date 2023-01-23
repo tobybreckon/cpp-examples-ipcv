@@ -154,7 +154,7 @@ void create_butterworth_lowpass_filter(Mat& dftFilter, int radius, int order)
     flip(q3, q2, 1);
     flip(q3, q0, -1);
 
-    Mat toMerge[] = { tmp, tmp };
+	Mat toMerge[] = { tmp, Mat::zeros(tmp.size(), CV_32F) };
     merge(toMerge, 2, dftFilter);
 }
 
